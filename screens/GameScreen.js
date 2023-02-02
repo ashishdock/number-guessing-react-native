@@ -5,6 +5,8 @@ import {
   StatusBar,
   Alert,
   FlatList,
+  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 // import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
@@ -34,6 +36,7 @@ export default function GameScreen({ userNumber, onGameOver }) {
   const initialGuess = generateRandomBetween(1, 100, userNumber);
   const [currentGuess, setCurrentGuess] = useState(initialGuess);
   const [guessRounds, setGuessRounds] = useState([initialGuess]);
+  const { width, height } = useWindowDimensions();
 
   useEffect(() => {
     if (currentGuess === userNumber) onGameOver(guessRounds.length);
@@ -75,11 +78,10 @@ export default function GameScreen({ userNumber, onGameOver }) {
 
   const guessRoundsListLength = guessRounds.length;
 
-  return (
-    <View style={styles.screen}>
-      <Title>Opponent's Guess</Title>
+  let content = (
+    <>
+      <NumberContainer>{currentGuess}</NumberContainer>
       <Card>
-        <NumberContainer>{currentGuess}</NumberContainer>
         <View>
           <InstructionText style={styles.instructionText}>
             Higher or lower?
@@ -98,6 +100,33 @@ export default function GameScreen({ userNumber, onGameOver }) {
           </View>
         </View>
       </Card>
+    </>
+  );
+
+  if (width > 500) {
+    content = (
+      <>
+        <View style={styles.buttonsContainerWide}>
+          <View style={styles.buttonContainer}>
+            <PrimaryButton onPress={nextGuessHandler.bind(this, 'greater')}>
+              <Ionicons name="md-add" size={24} color="white" />
+            </PrimaryButton>
+          </View>
+          <NumberContainer>{currentGuess}</NumberContainer>
+          <View style={styles.buttonContainer}>
+            <PrimaryButton onPress={nextGuessHandler.bind(this, 'lower')}>
+              <Ionicons name="md-remove" size={24} color="white" />
+            </PrimaryButton>
+          </View>
+        </View>
+      </>
+    );
+  }
+
+  return (
+    <View style={styles.screen}>
+      <Title>Opponent's Guess</Title>
+      {content}
       <View style={styles.listContainer}>
         {/* {guessRounds.map((guessRound) => {
           return <Text key={guessRound}>{guessRound}</Text>;
@@ -119,6 +148,8 @@ export default function GameScreen({ userNumber, onGameOver }) {
   );
 }
 
+const deviceWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -133,6 +164,11 @@ const styles = StyleSheet.create({
 
   buttonsContainer: {
     flexDirection: 'row',
+  },
+
+  buttonsContainerWide: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   instructionText: {
